@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
@@ -8,6 +9,22 @@ import (
 
 	"github.com/shirou/gopsutil/mem"
 )
+
+type MemoryInfo struct {
+	Bytes uint64 `json:"bytes"`
+	MiB   uint64 `json:"MiB"`
+	GiB   uint64 `json:"GiB"`
+}
+
+type MemoryData struct {
+	Capacity     MemoryInfo `json:"capacity"`
+	Usage        MemoryInfo `json:"usage"`
+	Availability MemoryInfo `json:"availability"`
+}
+
+type SysInfo struct {
+	Memory MemoryData `json:"memory"`
+}
 
 func main() {
 	http.Handle("/", http.FileServer(http.Dir("./ui")))
@@ -29,37 +46,50 @@ func sysInfoHandler(w http.ResponseWriter, r *http.Request) {
 
 	clientDisconnected := r.Context().Done()
 
-	rc := http.NewResponseController(w)
-
 	for {
 		select {
 		case <-clientDisconnected:
 			fmt.Println("Client has been disconnected.")
+			return
 		case <-memT.C:
 			m, err := mem.VirtualMemory()
 			if err != nil {
-				log.Printf("Unable to get mem: %s", err.Error())
+				log.Printf("Unable to get memory stats: %s", err.Error())
 				return
 			}
 
-			total := m.Total
-			totalMiB := total / (1024 * 1024)
-			totalGiB := total / (1024 * 1024 * 1024)
+			data := SysInfo{
+				Memory: MemoryData{
+					Capacity: MemoryInfo{
+						Bytes: m.Total,
+						MiB:   m.Total / (1024 * 1024),
+						GiB:   m.Total / (1024 * 1024 * 1024),
+					},
+					Usage: MemoryInfo{
+						Bytes: m.Used,
+						MiB:   m.Used / (1024 * 1024),
+						GiB:   m.Used / (1024 * 1024 * 1024),
+					},
+					Availability: MemoryInfo{
+						Bytes: m.Free,
+						MiB:   m.Free / (1024 * 1024),
+						GiB:   m.Free / (1024 * 1024 * 1024),
+					},
+				},
+			}
 
-			used := m.Used
-			usedMiB := used / (1024 * 1024)
-			usedGiB := used / (1024 * 1024 * 1024)
-
-			free := m.Free
-			freeMiB := free / (1024 * 1024)
-			freeGiB := free / (1024 * 1024 * 1024)
-
-			if _, err := fmt.Fprintf(w, "event:mem\ndata:total:%d,totalMiB:%d,totalGiB:%d,used:%d,usedMiB:%d,usedGiB:%d,free:%d,freeMiB:%d,freeGiB:%d\n\n", total, totalMiB, totalGiB, used, usedMiB, usedGiB, free, freeMiB, freeGiB); err != nil {
-				log.Printf("Unable to get mem: %s", err.Error())
+			jsonData, err := json.Marshal(data)
+			if err != nil {
+				log.Printf("Unable to marshal memory data: %s", err.Error())
 				return
 			}
 
-			rc.Flush()
+			if _, err := fmt.Fprintf(w, "event:sysInfo\ndata:%s\n\n", jsonData); err != nil {
+				log.Printf("Unable to write data: %s", err.Error())
+				return
+			}
+
+			w.(http.Flusher).Flush()
 		}
 	}
 }

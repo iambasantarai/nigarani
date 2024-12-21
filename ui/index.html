@@ -2,21 +2,50 @@
 <html>
   <head>
     <title>Nigarānī</title>
-  </head>
-  <body>
-    <h3>
-      <strong>Nigarānī</strong>: Simple web based system monitoring application
-    </h3>
 
-    <div id="info"></div>
+    <style>
+      .info-container {
+        margin: 20px;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        background-color: #f9f9f9;
+      }
+
+      .info-container ul {
+        list-style-type: none;
+        padding: 0;
+      }
+
+      .info-container ul li {
+        margin: 5px 0;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="info-container">
+      <ul id="info-list"></ul>
+    </div>
 
     <script>
-      const info = document.getElementById("info");
+      const infoList = document.getElementById("info-list");
       const eventSource = new EventSource("http://localhost:8000/sys-info");
 
-      eventSource.addEventListener("mem", (event) => {
-        info.textContent = event.data;
-        console.log(event.data);
+      eventSource.addEventListener("sysInfo", (event) => {
+        const sysInfo = JSON.parse(event.data);
+        const memory = sysInfo.memory;
+
+        infoList.innerHTML = "";
+
+        const capacity = memory.capacity;
+        infoList.innerHTML += `<li><strong>Total Memory:</strong> ${capacity.bytes} bytes (${capacity.MiB} MiB, ${capacity.GiB} GiB)</li>`;
+
+        const usage = memory.usage;
+        infoList.innerHTML += `<li><strong>Used Memory:</strong> ${usage.bytes} bytes (${usage.MiB} MiB, ${usage.GiB} GiB)</li>`;
+
+        const availability = memory.availability;
+        infoList.innerHTML += `<li><strong>Free Memory:</strong> ${availability.bytes} bytes (${availability.MiB} MiB, ${availability.GiB} GiB)</li>`;
       });
 
       eventSource.addEventListener("error", (event) => {
