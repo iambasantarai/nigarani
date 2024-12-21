@@ -4,6 +4,28 @@
     <title>Nigarānī</title>
   </head>
   <body>
-    <h3>Nigarānī: Simple web based system monitoring application</h3>
+    <h3>
+      <strong>Nigarānī</strong>: Simple web based system monitoring application
+    </h3>
+
+    <div id="info"></div>
+
+    <script>
+      const info = document.getElementById("info");
+      const eventSource = new EventSource("http://localhost:8000/sys-info");
+
+      eventSource.addEventListener("mem", (event) => {
+        info.textContent = event.data;
+        console.log(event.data);
+      });
+
+      eventSource.addEventListener("error", (event) => {
+        info.textContent = event.data;
+      });
+
+      eventSource.onerror = (error) => {
+        console.error("SSE ERROR: ", error);
+      };
+    </script>
   </body>
 </html>
