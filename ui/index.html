@@ -4,7 +4,7 @@
     <title>Nigarānī</title>
 
     <style>
-      .info-container {
+      .container {
         margin: 20px;
         padding: 10px;
         border: 1px solid #ccc;
@@ -12,19 +12,19 @@
         background-color: #f9f9f9;
       }
 
-      .info-container ul {
+      .container ul {
         list-style-type: none;
         padding: 0;
       }
 
-      .info-container ul li {
+      .container ul li {
         margin: 5px 0;
       }
     </style>
   </head>
 
   <body>
-    <div class="info-container">
+    <div class="container">
       <ul id="info-list"></ul>
     </div>
 
@@ -35,17 +35,34 @@
       eventSource.addEventListener("sysInfo", (event) => {
         const sysInfo = JSON.parse(event.data);
         const memory = sysInfo.memory;
+        const cpu = sysInfo.cpu;
+        const disk = sysInfo.disk;
 
         infoList.innerHTML = "";
 
-        const capacity = memory.capacity;
-        infoList.innerHTML += `<li><strong>Total Memory:</strong> ${capacity.bytes} bytes (${capacity.MiB} MiB, ${capacity.GiB} GiB)</li>`;
+        const modelName = cpu.modelName;
+        infoList.innerHTML += `<li><strong>CPU Model Name:</strong> ${modelName}</li>`;
 
-        const usage = memory.usage;
-        infoList.innerHTML += `<li><strong>Used Memory:</strong> ${usage.bytes} bytes (${usage.MiB} MiB, ${usage.GiB} GiB)</li>`;
+        const cores = cpu.cores;
+        infoList.innerHTML += `<li><strong>Cores:</strong> ${cores}</li>`;
 
-        const availability = memory.availability;
-        infoList.innerHTML += `<li><strong>Free Memory:</strong> ${availability.bytes} bytes (${availability.MiB} MiB, ${availability.GiB} GiB)</li>`;
+        const memCapacity = memory.capacity;
+        infoList.innerHTML += `<li><strong>Total Memory:</strong> ${memCapacity.bytes} bytes (${memCapacity.MiB} MiB, ${memCapacity.GiB} GiB)</li>`;
+
+        const memUsage = memory.usage;
+        infoList.innerHTML += `<li><strong>Used Memory:</strong> ${memUsage.bytes} bytes (${memUsage.MiB} MiB, ${memUsage.GiB} GiB)</li>`;
+
+        const memAvailability = memory.availability;
+        infoList.innerHTML += `<li><strong>Free Memory:</strong> ${memAvailability.bytes} bytes (${memAvailability.MiB} MiB, ${memAvailability.GiB} GiB)</li>`;
+
+        const diskCapacity = disk.capacity;
+        infoList.innerHTML += `<li><strong>Total Disk:</strong> ${diskCapacity.bytes} bytes (${diskCapacity.MiB} MiB, ${diskCapacity.GiB} GiB)</li>`;
+
+        const diskUsage = disk.usage;
+        infoList.innerHTML += `<li><strong>Used Disk:</strong> ${diskUsage.bytes} bytes (${diskUsage.MiB} MiB, ${diskUsage.GiB} GiB)</li>`;
+
+        const diskAvailability = disk.availability;
+        infoList.innerHTML += `<li><strong>Free Disk:</strong> ${diskAvailability.bytes} bytes (${diskAvailability.MiB} MiB, ${diskAvailability.GiB} GiB)</li>`;
       });
 
       eventSource.addEventListener("error", (event) => {
