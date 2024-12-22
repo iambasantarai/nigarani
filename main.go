@@ -12,7 +12,7 @@ import (
 	"github.com/shirou/gopsutil/mem"
 )
 
-type MemoryInfo struct {
+type StorageInfo struct {
 	Bytes uint64 `json:"bytes"`
 	MiB   uint64 `json:"MiB"`
 	GiB   uint64 `json:"GiB"`
@@ -23,28 +23,22 @@ type CPUInfo struct {
 	Cores     []float64 `json:"cores"`
 }
 
+type MemoryInfo struct {
+	Capacity     StorageInfo `json:"capacity"`
+	Usage        StorageInfo `json:"usage"`
+	Availability StorageInfo `json:"availability"`
+}
+
 type DiskInfo struct {
-	Bytes uint64 `json:"bytes"`
-	MiB   uint64 `json:"MiB"`
-	GiB   uint64 `json:"GiB"`
-}
-
-type MemoryData struct {
-	Capacity     MemoryInfo `json:"capacity"`
-	Usage        MemoryInfo `json:"usage"`
-	Availability MemoryInfo `json:"availability"`
-}
-
-type DiskData struct {
-	Capacity     DiskInfo `json:"capacity"`
-	Usage        DiskInfo `json:"usage"`
-	Availability DiskInfo `json:"availability"`
+	Capacity     StorageInfo `json:"capacity"`
+	Usage        StorageInfo `json:"usage"`
+	Availability StorageInfo `json:"availability"`
 }
 
 type SysInfo struct {
-	Memory MemoryData `json:"memory"`
+	Memory MemoryInfo `json:"memory"`
 	CPU    CPUInfo    `json:"cpu"`
-	Disk   DiskData   `json:"disk"`
+	Disk   DiskInfo   `json:"disk"`
 }
 
 func main() {
@@ -97,43 +91,46 @@ func sysInfoHandler(w http.ResponseWriter, r *http.Request) {
 				return
 			}
 
+			const MiBDivisor = 1024 * 1024
+			const GiBDivisor = 1024 * 1024 * 1024
+
 			data := SysInfo{
-				Memory: MemoryData{
-					Capacity: MemoryInfo{
+				Memory: MemoryInfo{
+					Capacity: StorageInfo{
 						Bytes: memStat.Total,
-						MiB:   memStat.Total / (1024 * 1024),
-						GiB:   memStat.Total / (1024 * 1024 * 1024),
+						MiB:   memStat.Total / MiBDivisor,
+						GiB:   memStat.Total / GiBDivisor,
 					},
-					Usage: MemoryInfo{
+					Usage: StorageInfo{
 						Bytes: memStat.Used,
-						MiB:   memStat.Used / (1024 * 1024),
-						GiB:   memStat.Used / (1024 * 1024 * 1024),
+						MiB:   memStat.Used / MiBDivisor,
+						GiB:   memStat.Used / GiBDivisor,
 					},
-					Availability: MemoryInfo{
+					Availability: StorageInfo{
 						Bytes: memStat.Free,
-						MiB:   memStat.Free / (1024 * 1024),
-						GiB:   memStat.Free / (1024 * 1024 * 1024),
+						MiB:   memStat.Free / MiBDivisor,
+						GiB:   memStat.Free / GiBDivisor,
 					},
 				},
 				CPU: CPUInfo{
 					ModelName: cpuStat[0].ModelName,
 					Cores:     usedCPUPercentage,
 				},
-				Disk: DiskData{
-					Capacity: DiskInfo{
+				Disk: DiskInfo{
+					Capacity: StorageInfo{
 						Bytes: diskStat.Total,
-						MiB:   diskStat.Total / (1024 * 1024),
-						GiB:   diskStat.Total / (1024 * 1024 * 1024),
+						MiB:   diskStat.Total / MiBDivisor,
+						GiB:   diskStat.Total / GiBDivisor,
 					},
-					Usage: DiskInfo{
+					Usage: StorageInfo{
 						Bytes: diskStat.Used,
-						MiB:   diskStat.Used / (1024 * 1024),
-						GiB:   diskStat.Used / (1024 * 1024 * 1024),
+						MiB:   diskStat.Used / MiBDivisor,
+						GiB:   diskStat.Used / GiBDivisor,
 					},
-					Availability: DiskInfo{
+					Availability: StorageInfo{
 						Bytes: diskStat.Free,
-						MiB:   diskStat.Free / (1024 * 1024),
-						GiB:   diskStat.Free / (1024 * 1024 * 1024),
+						MiB:   diskStat.Free / MiBDivisor,
+						GiB:   diskStat.Free / GiBDivisor,
 					},
 				},
 			}
