@@ -20,13 +20,11 @@
         <div class="tab-content active" id="cpu-content">
           <div class="metric-overview">
             <div class="metric-stat">
-              <div class="metric-value">
-                45<span style="font-size: 24px">%</span>
-              </div>
-
-              <div class="metric-label">CPU Usage</div>
+              <div id="cpu-used-percent" class="metric-value"></div>
 
               <div id="cpu-model-name" class="metric-details"></div>
+
+              <div class="metric-label">Core Usage</div>
             </div>
           </div>
         </div>
@@ -88,6 +86,8 @@
 
         const cpuModelName = document.getElementById("cpu-model-name");
         cpuModelName.innerHTML = cpu.modelName;
+        const cpuUsedPercent = document.getElementById("cpu-used-percent");
+        cpuUsedPercent.innerHTML = `${cpu.usedPercent} <span style="font-size: 24px">%</span>`;
 
         const memoryUsage = document.getElementById("memory-usage");
         memoryUsage.innerHTML = `${memory.usage.GiB} GiB of ${memory.capacity.GiB} GiB`;

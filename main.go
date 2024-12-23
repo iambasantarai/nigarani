@@ -20,8 +20,9 @@ type StorageInfo struct {
 }
 
 type CPUInfo struct {
-	ModelName string    `json:"modelName"`
-	Cores     []float64 `json:"cores"`
+	ModelName   string    `json:"modelName"`
+	Cores       []float64 `json:"cores"`
+	UsedPercent float64   `json:"usedPercent"`
 }
 
 type MemoryInfo struct {
@@ -61,6 +62,19 @@ func roundToThreeDecimalPlaces(value float64) float64 {
 	}
 
 	return roundedValue
+}
+
+func calculateAverageUsagePercent(usagePercents []float64) float64 {
+	if len(usagePercents) == 0 {
+		return 0.0
+	}
+
+	var total float64
+	for _, percent := range usagePercents {
+		total += percent
+	}
+
+	return roundToThreeDecimalPlaces(total / float64(len(usagePercents)))
 }
 
 func sysInfoHandler(w http.ResponseWriter, r *http.Request) {
@@ -131,8 +145,9 @@ func sysInfoHandler(w http.ResponseWriter, r *http.Request) {
 					UsedPercent: roundToThreeDecimalPlaces(memStat.UsedPercent),
 				},
 				CPU: CPUInfo{
-					ModelName: cpuStat[0].ModelName,
-					Cores:     formattedCoreUsagePercents,
+					ModelName:   cpuStat[0].ModelName,
+					Cores:       formattedCoreUsagePercents,
+					UsedPercent: calculateAverageUsagePercent(formattedCoreUsagePercents),
 				},
 				Disk: DiskInfo{
 					Capacity: StorageInfo{
