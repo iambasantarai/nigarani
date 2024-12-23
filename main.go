@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"strconv"
 	"time"
 
 	"github.com/shirou/gopsutil/cpu"
@@ -53,6 +54,15 @@ func main() {
 	}
 }
 
+func roundToThreeDecimalPlaces(value float64) float64 {
+	roundedValue, err := strconv.ParseFloat(fmt.Sprintf("%.3f", value), 64)
+	if err != nil {
+		log.Printf("Error rounding value: %s", err.Error())
+	}
+
+	return roundedValue
+}
+
 func sysInfoHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/event-stream")
 	w.Header().Set("Cache-Control", "no-cache")
@@ -81,10 +91,15 @@ func sysInfoHandler(w http.ResponseWriter, r *http.Request) {
 				return
 			}
 
-			usedCPUPercentage, err := cpu.Percent(0, true)
+			coreUsagePercents, err := cpu.Percent(0, true)
 			if err != nil {
-				log.Printf("Unable to get used cpu stats: %s", err.Error())
+				log.Printf("Unable to get core usage percents: %s", err.Error())
 				return
+			}
+
+			formattedCoreUsagePercents := make([]float64, len(coreUsagePercents))
+			for i, percent := range coreUsagePercents {
+				formattedCoreUsagePercents[i] = roundToThreeDecimalPlaces(percent)
 			}
 
 			diskStat, err := disk.Usage("/")
@@ -113,11 +128,11 @@ func sysInfoHandler(w http.ResponseWriter, r *http.Request) {
 						MiB:   memStat.Free / MiBDivisor,
 						GiB:   memStat.Free / GiBDivisor,
 					},
-					UsedPercent: memStat.UsedPercent,
+					UsedPercent: roundToThreeDecimalPlaces(memStat.UsedPercent),
 				},
 				CPU: CPUInfo{
 					ModelName: cpuStat[0].ModelName,
-					Cores:     usedCPUPercentage,
+					Cores:     formattedCoreUsagePercents,
 				},
 				Disk: DiskInfo{
 					Capacity: StorageInfo{
@@ -135,7 +150,7 @@ func sysInfoHandler(w http.ResponseWriter, r *http.Request) {
 						MiB:   diskStat.Free / MiBDivisor,
 						GiB:   diskStat.Free / GiBDivisor,
 					},
-					UsedPercent: diskStat.UsedPercent,
+					UsedPercent: roundToThreeDecimalPlaces(diskStat.UsedPercent),
 				},
 			}
 
