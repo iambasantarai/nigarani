@@ -7,11 +7,81 @@
 
   <body>
     <div class="container">
-      <ul id="info-list"></ul>
+      <div class="tabs">
+        <div class="tab active" data-tab="cpu">CPU</div>
+
+        <div class="tab" data-tab="memory">Memory</div>
+
+        <div class="tab" data-tab="disk">Disk</div>
+      </div>
+
+      <div class="content">
+        <!-- CPU Tab -->
+        <div class="tab-content active" id="cpu-content">
+          <div class="metric-overview">
+            <div class="metric-stat">
+              <div class="metric-value">
+                45<span style="font-size: 24px">%</span>
+              </div>
+
+              <div class="metric-label">CPU Usage</div>
+
+              <div id="cpu-model-name" class="metric-details"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Memory Tab -->
+        <div class="tab-content" id="memory-content">
+          <div class="metric-overview">
+            <div class="metric-stat">
+              <div class="metric-value">
+                59<span style="font-size: 24px">%</span>
+              </div>
+
+              <div class="metric-label">Memory</div>
+
+              <div id="memory-usage" class="metric-details"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Disk Tab -->
+        <div class="tab-content" id="disk-content">
+          <div class="metric-overview">
+            <div class="metric-stat">
+              <div class="metric-value">
+                72<span style="font-size: 24px">%</span>
+              </div>
+
+              <div class="metric-label">Disk Usage</div>
+
+              <div id="disk-usage" class="metric-details"></div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
 
     <script>
-      const infoList = document.getElementById("info-list");
+      document.querySelectorAll(".tab").forEach((tab) => {
+        tab.addEventListener("click", () => {
+          document
+            .querySelectorAll(".tab")
+            .forEach((t) => t.classList.remove("active"));
+
+          document
+            .querySelectorAll(".tab-content")
+            .forEach((c) => c.classList.remove("active"));
+
+          tab.classList.add("active");
+
+          document
+            .getElementById(`${tab.dataset.tab}-content`)
+            .classList.add("active");
+        });
+      });
+
       const eventSource = new EventSource("http://localhost:8000/sys-info");
 
       eventSource.addEventListener("sysInfo", (event) => {
@@ -20,35 +90,14 @@
         const cpu = sysInfo.cpu;
         const disk = sysInfo.disk;
 
-        infoList.innerHTML = "";
+        const cpuModelName = document.getElementById("cpu-model-name");
+        cpuModelName.innerHTML = cpu.modelName;
 
-        const modelName = cpu.modelName;
-        infoList.innerHTML += `<li><strong>CPU Model Name:</strong> ${modelName}</li>`;
+        const memoryUsage = document.getElementById("memory-usage");
+        memoryUsage.innerHTML = `${memory.usage.GiB} GiB of ${memory.capacity.GiB} GiB`;
 
-        const cores = cpu.cores;
-        infoList.innerHTML += `<li><strong>Cores:</strong> ${cores}</li>`;
-
-        const memCapacity = memory.capacity;
-        infoList.innerHTML += `<li><strong>Total Memory:</strong> ${memCapacity.bytes} bytes (${memCapacity.MiB} MiB, ${memCapacity.GiB} GiB)</li>`;
-
-        const memUsage = memory.usage;
-        infoList.innerHTML += `<li><strong>Used Memory:</strong> ${memUsage.bytes} bytes (${memUsage.MiB} MiB, ${memUsage.GiB} GiB)</li>`;
-
-        const memAvailability = memory.availability;
-        infoList.innerHTML += `<li><strong>Free Memory:</strong> ${memAvailability.bytes} bytes (${memAvailability.MiB} MiB, ${memAvailability.GiB} GiB)</li>`;
-
-        const diskCapacity = disk.capacity;
-        infoList.innerHTML += `<li><strong>Total Disk:</strong> ${diskCapacity.bytes} bytes (${diskCapacity.MiB} MiB, ${diskCapacity.GiB} GiB)</li>`;
-
-        const diskUsage = disk.usage;
-        infoList.innerHTML += `<li><strong>Used Disk:</strong> ${diskUsage.bytes} bytes (${diskUsage.MiB} MiB, ${diskUsage.GiB} GiB)</li>`;
-
-        const diskAvailability = disk.availability;
-        infoList.innerHTML += `<li><strong>Free Disk:</strong> ${diskAvailability.bytes} bytes (${diskAvailability.MiB} MiB, ${diskAvailability.GiB} GiB)</li>`;
-      });
-
-      eventSource.addEventListener("error", (event) => {
-        info.textContent = event.data;
+        const diskUsage = document.getElementById("disk-usage");
+        diskUsage.innerHTML = `${disk.usage.GiB} GiB of ${disk.capacity.GiB} GiB`;
       });
 
       eventSource.onerror = (error) => {
