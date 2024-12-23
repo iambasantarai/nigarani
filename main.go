@@ -27,12 +27,14 @@ type MemoryInfo struct {
 	Capacity     StorageInfo `json:"capacity"`
 	Usage        StorageInfo `json:"usage"`
 	Availability StorageInfo `json:"availability"`
+	UsedPercent  float64     `json:"usedPercent"`
 }
 
 type DiskInfo struct {
 	Capacity     StorageInfo `json:"capacity"`
 	Usage        StorageInfo `json:"usage"`
 	Availability StorageInfo `json:"availability"`
+	UsedPercent  float64     `json:"usedPercent"`
 }
 
 type SysInfo struct {
@@ -111,6 +113,7 @@ func sysInfoHandler(w http.ResponseWriter, r *http.Request) {
 						MiB:   memStat.Free / MiBDivisor,
 						GiB:   memStat.Free / GiBDivisor,
 					},
+					UsedPercent: memStat.UsedPercent,
 				},
 				CPU: CPUInfo{
 					ModelName: cpuStat[0].ModelName,
@@ -132,6 +135,7 @@ func sysInfoHandler(w http.ResponseWriter, r *http.Request) {
 						MiB:   diskStat.Free / MiBDivisor,
 						GiB:   diskStat.Free / GiBDivisor,
 					},
+					UsedPercent: diskStat.UsedPercent,
 				},
 			}
 

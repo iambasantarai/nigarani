@@ -35,9 +35,7 @@
         <div class="tab-content" id="memory-content">
           <div class="metric-overview">
             <div class="metric-stat">
-              <div class="metric-value">
-                59<span style="font-size: 24px">%</span>
-              </div>
+              <div id="memory-used-percent" class="metric-value"></div>
 
               <div class="metric-label">Memory</div>
 
@@ -50,9 +48,7 @@
         <div class="tab-content" id="disk-content">
           <div class="metric-overview">
             <div class="metric-stat">
-              <div class="metric-value">
-                72<span style="font-size: 24px">%</span>
-              </div>
+              <div id="disk-used-percent" class="metric-value"></div>
 
               <div class="metric-label">Disk Usage</div>
 
@@ -95,9 +91,15 @@
 
         const memoryUsage = document.getElementById("memory-usage");
         memoryUsage.innerHTML = `${memory.usage.GiB} GiB of ${memory.capacity.GiB} GiB`;
+        const memoryUsedPercent = document.getElementById(
+          "memory-used-percent",
+        );
+        memoryUsedPercent.innerHTML = `${memory.usedPercent} <span style="font-size: 24px">%</span>`;
 
         const diskUsage = document.getElementById("disk-usage");
         diskUsage.innerHTML = `${disk.usage.GiB} GiB of ${disk.capacity.GiB} GiB`;
+        const diskUsedPercent = document.getElementById("disk-used-percent");
+        diskUsedPercent.innerHTML = `${disk.usedPercent} <span style="font-size: 24px">%</span>`;
       });
 
       eventSource.onerror = (error) => {
