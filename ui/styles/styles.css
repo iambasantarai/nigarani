@@ -79,3 +79,18 @@
   color: #666;
   font-size: 14px;
 }
+
+.core-usages {
+  margin-top: 10px;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+}
+
+.cpu-core-item {
+  padding: 8px;
+  display: flex;
+  align-items: center;
+}
