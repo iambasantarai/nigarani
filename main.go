@@ -11,6 +11,7 @@ import (
 	"github.com/shirou/gopsutil/cpu"
 	"github.com/shirou/gopsutil/disk"
 	"github.com/shirou/gopsutil/mem"
+	"github.com/shirou/gopsutil/process"
 )
 
 type StorageInfo struct {
@@ -40,10 +41,18 @@ type DiskInfo struct {
 	UsedPercent  float64     `json:"usedPercent"`
 }
 
+type ProcessInfo struct {
+	PID         int32       `json:"pid"`
+	Name        string      `json:"name"`
+	CPUPercent  float64     `json:"cpuPercent"`
+	MemoryUsage StorageInfo `json:"memoryUsage"`
+}
+
 type SysInfo struct {
-	Memory MemoryInfo `json:"memory"`
-	CPU    CPUInfo    `json:"cpu"`
-	Disk   DiskInfo   `json:"disk"`
+	Memory    MemoryInfo    `json:"memory"`
+	CPU       CPUInfo       `json:"cpu"`
+	Disk      DiskInfo      `json:"disk"`
+	Processes []ProcessInfo `json:"processes"`
 }
 
 func main() {
@@ -94,6 +103,10 @@ func sysInfoHandler(w http.ResponseWriter, r *http.Request) {
 			fmt.Println("Client has been disconnected.")
 			return
 		case <-tickerT.C:
+			const KiBDivisor = 1024
+			const MiBDivisor = 1024 * 1024
+			const GiBDivisor = 1024 * 1024 * 1024
+
 			memStat, err := mem.VirtualMemory()
 			if err != nil {
 				log.Printf("Unable to get memory stats: %s", err.Error())
@@ -123,9 +136,39 @@ func sysInfoHandler(w http.ResponseWriter, r *http.Request) {
 				return
 			}
 
-			const KiBDivisor = 1024
-			const MiBDivisor = 1024 * 1024
-			const GiBDivisor = 1024 * 1024 * 1024
+			var processInfos []ProcessInfo
+			procs, err := process.Processes()
+			if err != nil {
+				log.Printf("Unable to get procs stats: %s", err.Error())
+				return
+			}
+
+			for _, proc := range procs {
+				name, err := proc.Name()
+				if err != nil {
+					log.Printf("Unable to get proc name: %s", err.Error())
+				}
+				cpuPercent, err := proc.CPUPercent()
+				if err != nil {
+					log.Printf("Unable to get cpu percent: %s", err.Error())
+				}
+				memoryUsage, err := proc.MemoryInfo()
+				if err != nil {
+					log.Printf("Unable to get memory info: %s", err.Error())
+				}
+
+				processInfos = append(processInfos, ProcessInfo{
+					PID:        proc.Pid,
+					Name:       name,
+					CPUPercent: roundToThreeDecimalPlaces(cpuPercent),
+					MemoryUsage: StorageInfo{
+						Bytes: memoryUsage.RSS,
+						KiB:   memoryUsage.RSS / KiBDivisor,
+						MiB:   memoryUsage.RSS / MiBDivisor,
+						GiB:   memoryUsage.RSS / GiBDivisor,
+					},
+				})
+			}
 
 			data := SysInfo{
 				Memory: MemoryInfo{
@@ -175,6 +218,7 @@ func sysInfoHandler(w http.ResponseWriter, r *http.Request) {
 					},
 					UsedPercent: roundToThreeDecimalPlaces(diskStat.UsedPercent),
 				},
+				Processes: processInfos,
 			}
 
 			jsonData, err := json.Marshal(data)

@@ -8,9 +8,6 @@
 .container {
   margin: 20px;
   padding: 10px;
-  max-width: 512px;
-  margin-left: auto;
-  margin-right: auto;
   border: 1.5px solid #ccc;
   border-radius: 0.75rem;
   background-color: #f9f9f9;

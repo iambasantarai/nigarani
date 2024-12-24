@@ -55,6 +55,8 @@
             </div>
           </div>
         </div>
+
+        <div id="process-list"></div>
       </div>
     </div>
 
@@ -84,6 +86,7 @@
         const memory = sysInfo.memory;
         const cpu = sysInfo.cpu;
         const disk = sysInfo.disk;
+        const processes = sysInfo.processes;
 
         const cpuModelName = document.getElementById("cpu-model-name");
         cpuModelName.innerHTML = cpu.modelName;
@@ -111,6 +114,14 @@
         diskUsage.innerHTML = `${disk.usage.GiB} GiB of ${disk.capacity.GiB} GiB`;
         const diskUsedPercent = document.getElementById("disk-used-percent");
         diskUsedPercent.innerHTML = `${disk.usedPercent} <span style="font-size: 24px">%</span>`;
+
+        const processList = document.getElementById("process-list");
+        processList.innerHTML = "";
+        processes.forEach((process) => {
+          const li = document.createElement("li");
+          li.textContent = `${process.name} (PID: ${process.pid}, CPU: ${process.cpuPercent.toFixed(2)}%, Memory: ${process.memoryUsage.bytes} bytes /${process.memoryUsage.KiB} KiB/ ${process.memoryUsage.MiB} MiB/ ${process.memoryUsage.GiB} GiB)`;
+          processList.appendChild(li);
+        });
       });
 
       eventSource.onerror = (error) => {
