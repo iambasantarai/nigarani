@@ -15,6 +15,7 @@ import (
 
 type StorageInfo struct {
 	Bytes uint64 `json:"bytes"`
+	KiB   uint64 `json:"KiB"`
 	MiB   uint64 `json:"MiB"`
 	GiB   uint64 `json:"GiB"`
 }
@@ -122,6 +123,7 @@ func sysInfoHandler(w http.ResponseWriter, r *http.Request) {
 				return
 			}
 
+			const KiBDivisor = 1024
 			const MiBDivisor = 1024 * 1024
 			const GiBDivisor = 1024 * 1024 * 1024
 
@@ -129,16 +131,19 @@ func sysInfoHandler(w http.ResponseWriter, r *http.Request) {
 				Memory: MemoryInfo{
 					Capacity: StorageInfo{
 						Bytes: memStat.Total,
+						KiB:   memStat.Total / KiBDivisor,
 						MiB:   memStat.Total / MiBDivisor,
 						GiB:   memStat.Total / GiBDivisor,
 					},
 					Usage: StorageInfo{
 						Bytes: memStat.Used,
+						KiB:   memStat.Used / KiBDivisor,
 						MiB:   memStat.Used / MiBDivisor,
 						GiB:   memStat.Used / GiBDivisor,
 					},
 					Availability: StorageInfo{
 						Bytes: memStat.Free,
+						KiB:   memStat.Free / KiBDivisor,
 						MiB:   memStat.Free / MiBDivisor,
 						GiB:   memStat.Free / GiBDivisor,
 					},
@@ -152,16 +157,19 @@ func sysInfoHandler(w http.ResponseWriter, r *http.Request) {
 				Disk: DiskInfo{
 					Capacity: StorageInfo{
 						Bytes: diskStat.Total,
+						KiB:   diskStat.Total / KiBDivisor,
 						MiB:   diskStat.Total / MiBDivisor,
 						GiB:   diskStat.Total / GiBDivisor,
 					},
 					Usage: StorageInfo{
 						Bytes: diskStat.Used,
+						KiB:   diskStat.Used / KiBDivisor,
 						MiB:   diskStat.Used / MiBDivisor,
 						GiB:   diskStat.Used / GiBDivisor,
 					},
 					Availability: StorageInfo{
 						Bytes: diskStat.Free,
+						KiB:   diskStat.Free / KiBDivisor,
 						MiB:   diskStat.Free / MiBDivisor,
 						GiB:   diskStat.Free / GiBDivisor,
 					},
