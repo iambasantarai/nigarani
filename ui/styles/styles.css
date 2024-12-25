@@ -5,6 +5,22 @@
   font-family: sans-serif;
 }
 
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+  background: transparent;
+}
+
+::-webkit-scrollbar-track {
+  background: #f8fafc;
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 9999px;
+}
+
 .container {
   margin: 20px;
   padding: 10px;
@@ -100,15 +116,16 @@
 
 .process-list {
   padding: 16px;
-  border: 1.5px solid #ccc;
-  border-radius: 0.75rem;
+  max-height: 448px;
+  overflow-y: scroll;
 }
 
 .process-item {
   display: flex;
   align-items: center;
   padding: 12px 16px;
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid #ccc;
+  list-style: none;
 }
 
 .process-item:last-child {

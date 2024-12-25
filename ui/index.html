@@ -121,6 +121,7 @@
         processList.innerHTML = "";
         processes.forEach((process) => {
           const li = document.createElement("li");
+          li.classList.add("process-item");
           li.textContent = `${process.name} (PID: ${process.pid}, CPU: ${process.cpuPercent.toFixed(2)}%, Memory: ${process.memoryUsage.bytes} bytes /${process.memoryUsage.KiB} KiB/ ${process.memoryUsage.MiB} MiB/ ${process.memoryUsage.GiB} GiB)`;
           processList.appendChild(li);
         });
