@@ -59,8 +59,8 @@ func main() {
 	http.Handle("/", http.FileServer(http.Dir("./ui")))
 	http.HandleFunc("/sys-info", sysInfoHandler)
 
-	fmt.Printf("Application started.\nLink: http://localhost:%d\n", 8000)
-	if err := http.ListenAndServe(":8000", nil); err != nil {
+	fmt.Printf("Application started.\nLink: http://localhost:%d\n", 6969)
+	if err := http.ListenAndServe(":6969", nil); err != nil {
 		log.Fatalf("ERROR: %s", err.Error())
 	}
 }

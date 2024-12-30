@@ -81,7 +81,7 @@
         });
       });
 
-      const eventSource = new EventSource("http://localhost:8000/sys-info");
+      const eventSource = new EventSource("http://localhost:6969/sys-info");
 
       eventSource.addEventListener("sysInfo", (event) => {
         const sysInfo = JSON.parse(event.data);
