@@ -59,9 +59,9 @@
         <div class="processes">
           <div class="process-header">
             <h2>Processes</h2>
-            <div>
-              Usage Filter
-              <button class="filter-button" data-unit="bytes">Bytes</button>
+            <div id="unit-filter">
+              Filter
+              <button class="filter-button active" data-unit="bytes">Bytes</button>
               <button class="filter-button" data-unit="KiB">KiB</button>
               <button class="filter-button" data-unit="MiB">MiB</button>
               <button class="filter-button" data-unit="GiB">GiB</button>
@@ -89,9 +89,18 @@
 
           const selectedTab = tab.dataset.tab;
           if (selectedTab === "cpu" || selectedTab === "memory") {
+            if (selectedTab === "cpu") {
+              document.getElementById("unit-filter").classList.add("hide");
+            } else {
+              document.getElementById("unit-filter").classList.remove("hide");
+            }
+
+            document.querySelector(".processes").classList.remove("hide");
+
             displayProcesses(processes, selectedTab);
           } else {
             document.getElementById("process-list").innerHTML = "";
+            document.querySelector(".processes").classList.add("hide");
           }
         });
       });
@@ -99,6 +108,11 @@
       let unit = "bytes";
       document.querySelectorAll(".filter-button").forEach((button) => {
         button.addEventListener("click", function () {
+          document.querySelectorAll(".filter-button").forEach((btn) => {
+              btn.classList.remove("active");
+          });
+          button.classList.add("active");
+
           unit = this.dataset.unit;
 
           const activeTab = document.querySelector(".tab.active").dataset.tab;
@@ -127,7 +141,7 @@
         cpuCoreUsages.innerHTML = "";
         cpu.cores.forEach((usage, index) => {
           const listItem = document.createElement("li");
-          listItem.textContent = `Core[${index + 1}]: ${usage}%`;
+          listItem.innerHTML = `<strong>Core[${index + 1}]</strong> : ${usage}%`;
           listItem.classList.add("cpu-core-item");
           cpuCoreUsages.appendChild(listItem);
         });
@@ -185,5 +199,5 @@
         console.error("SSE ERROR: ", error);
       };
     </script>
-  </body>
+  <body>
 </html>
