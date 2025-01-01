@@ -5,13 +5,14 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"strconv"
 	"time"
 
 	"github.com/shirou/gopsutil/cpu"
 	"github.com/shirou/gopsutil/disk"
 	"github.com/shirou/gopsutil/mem"
 	"github.com/shirou/gopsutil/process"
+
+	"github.com/iambasantarai/nigarani/utils"
 )
 
 type StorageInfo struct {
@@ -65,34 +66,6 @@ func main() {
 	}
 }
 
-func roundToThreeDecimalPlaces(value float64) float64 {
-	roundedValue, err := strconv.ParseFloat(fmt.Sprintf("%.3f", value), 64)
-	if err != nil {
-		log.Printf("Error rounding value: %s", err.Error())
-	}
-
-	return roundedValue
-}
-
-func calculateAverageUsagePercent(usagePercents []float64) float64 {
-	if len(usagePercents) == 0 {
-		return 0.0
-	}
-
-	var total float64
-	for _, percent := range usagePercents {
-		total += percent
-	}
-
-	return roundToThreeDecimalPlaces(total / float64(len(usagePercents)))
-}
-
-func performConversion(dividend, divisor uint64) float64 {
-	result := float64(dividend) / float64(divisor)
-
-	return roundToThreeDecimalPlaces(result)
-}
-
 func sysInfoHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/event-stream")
 	w.Header().Set("Cache-Control", "no-cache")
@@ -133,7 +106,7 @@ func sysInfoHandler(w http.ResponseWriter, r *http.Request) {
 
 			formattedCoreUsagePercents := make([]float64, len(coreUsagePercents))
 			for i, percent := range coreUsagePercents {
-				formattedCoreUsagePercents[i] = roundToThreeDecimalPlaces(percent)
+				formattedCoreUsagePercents[i] = utils.RoundToThreeDecimalPlaces(percent)
 			}
 
 			diskStat, err := disk.Usage("/")
@@ -166,12 +139,12 @@ func sysInfoHandler(w http.ResponseWriter, r *http.Request) {
 				processInfos = append(processInfos, ProcessInfo{
 					PID:        proc.Pid,
 					Name:       name,
-					CPUPercent: roundToThreeDecimalPlaces(cpuPercent),
+					CPUPercent: utils.RoundToThreeDecimalPlaces(cpuPercent),
 					MemoryUsage: StorageInfo{
 						Bytes: memoryUsage.RSS,
-						KiB:   performConversion(memoryUsage.RSS, KiBDivisor),
-						MiB:   performConversion(memoryUsage.RSS, MiBDivisor),
-						GiB:   performConversion(memoryUsage.RSS, GiBDivisor),
+						KiB:   utils.PerformUnitConversion(memoryUsage.RSS, KiBDivisor),
+						MiB:   utils.PerformUnitConversion(memoryUsage.RSS, MiBDivisor),
+						GiB:   utils.PerformUnitConversion(memoryUsage.RSS, GiBDivisor),
 					},
 				})
 			}
@@ -180,49 +153,49 @@ func sysInfoHandler(w http.ResponseWriter, r *http.Request) {
 				Memory: MemoryInfo{
 					Capacity: StorageInfo{
 						Bytes: memStat.Total,
-						KiB:   performConversion(memStat.Total, KiBDivisor),
-						MiB:   performConversion(memStat.Total, MiBDivisor),
-						GiB:   performConversion(memStat.Total, GiBDivisor),
+						KiB:   utils.PerformUnitConversion(memStat.Total, KiBDivisor),
+						MiB:   utils.PerformUnitConversion(memStat.Total, MiBDivisor),
+						GiB:   utils.PerformUnitConversion(memStat.Total, GiBDivisor),
 					},
 					Usage: StorageInfo{
 						Bytes: memStat.Used,
-						KiB:   performConversion(memStat.Used, KiBDivisor),
-						MiB:   performConversion(memStat.Used, MiBDivisor),
-						GiB:   performConversion(memStat.Used, GiBDivisor),
+						KiB:   utils.PerformUnitConversion(memStat.Used, KiBDivisor),
+						MiB:   utils.PerformUnitConversion(memStat.Used, MiBDivisor),
+						GiB:   utils.PerformUnitConversion(memStat.Used, GiBDivisor),
 					},
 					Availability: StorageInfo{
 						Bytes: memStat.Free,
-						KiB:   performConversion(memStat.Free, KiBDivisor),
-						MiB:   performConversion(memStat.Free, MiBDivisor),
-						GiB:   performConversion(memStat.Free, GiBDivisor),
+						KiB:   utils.PerformUnitConversion(memStat.Free, KiBDivisor),
+						MiB:   utils.PerformUnitConversion(memStat.Free, MiBDivisor),
+						GiB:   utils.PerformUnitConversion(memStat.Free, GiBDivisor),
 					},
-					UsedPercent: roundToThreeDecimalPlaces(memStat.UsedPercent),
+					UsedPercent: utils.RoundToThreeDecimalPlaces(memStat.UsedPercent),
 				},
 				CPU: CPUInfo{
 					ModelName:   cpuStat[0].ModelName,
 					Cores:       formattedCoreUsagePercents,
-					UsedPercent: calculateAverageUsagePercent(formattedCoreUsagePercents),
+					UsedPercent: utils.CalculateAverageUsagePercent(formattedCoreUsagePercents),
 				},
 				Disk: DiskInfo{
 					Capacity: StorageInfo{
 						Bytes: diskStat.Total,
-						KiB:   performConversion(diskStat.Total, KiBDivisor),
-						MiB:   performConversion(diskStat.Total, MiBDivisor),
-						GiB:   performConversion(diskStat.Total, GiBDivisor),
+						KiB:   utils.PerformUnitConversion(diskStat.Total, KiBDivisor),
+						MiB:   utils.PerformUnitConversion(diskStat.Total, MiBDivisor),
+						GiB:   utils.PerformUnitConversion(diskStat.Total, GiBDivisor),
 					},
 					Usage: StorageInfo{
 						Bytes: diskStat.Used,
-						KiB:   performConversion(diskStat.Used, KiBDivisor),
-						MiB:   performConversion(diskStat.Used, MiBDivisor),
-						GiB:   performConversion(diskStat.Used, GiBDivisor),
+						KiB:   utils.PerformUnitConversion(diskStat.Used, KiBDivisor),
+						MiB:   utils.PerformUnitConversion(diskStat.Used, MiBDivisor),
+						GiB:   utils.PerformUnitConversion(diskStat.Used, GiBDivisor),
 					},
 					Availability: StorageInfo{
 						Bytes: diskStat.Free,
-						KiB:   performConversion(diskStat.Free, KiBDivisor),
-						MiB:   performConversion(diskStat.Free, MiBDivisor),
-						GiB:   performConversion(diskStat.Free, GiBDivisor),
+						KiB:   utils.PerformUnitConversion(diskStat.Free, KiBDivisor),
+						MiB:   utils.PerformUnitConversion(diskStat.Free, MiBDivisor),
+						GiB:   utils.PerformUnitConversion(diskStat.Free, GiBDivisor),
 					},
-					UsedPercent: roundToThreeDecimalPlaces(diskStat.UsedPercent),
+					UsedPercent: utils.RoundToThreeDecimalPlaces(diskStat.UsedPercent),
 				},
 				Processes: processInfos,
 			}
