@@ -57,7 +57,17 @@
         </div>
 
         <div class="processes">
-          <div id="process-list" class="process-list"></div>
+          <div class="process-header">
+            <h2>Processes</h2>
+            <div>
+              Usage Filter
+              <button class="filter-button" data-unit="bytes">Bytes</button>
+              <button class="filter-button" data-unit="KiB">KiB</button>
+              <button class="filter-button" data-unit="MiB">MiB</button>
+              <button class="filter-button" data-unit="GiB">GiB</button>
+            </div>
+          </div>
+          <div class="process-list" id="process-list"></div>
         </div>
       </div>
     </div>
@@ -81,6 +91,16 @@
         });
       });
 
+      let unit = "bytes";
+      document.querySelectorAll(".filter-button").forEach((button) => {
+        button.addEventListener("click", function () {
+          unit = this.dataset.unit;
+          displayProcesses(processes);
+        });
+      });
+
+      let processes = [];
+
       const eventSource = new EventSource("http://localhost:6969/sys-info");
 
       eventSource.addEventListener("sysInfo", (event) => {
@@ -88,7 +108,7 @@
         const memory = sysInfo.memory;
         const cpu = sysInfo.cpu;
         const disk = sysInfo.disk;
-        const processes = sysInfo.processes;
+        processes = sysInfo.processes;
 
         const cpuModelName = document.getElementById("cpu-model-name");
         cpuModelName.innerHTML = cpu.modelName;
@@ -117,15 +137,32 @@
         const diskUsedPercent = document.getElementById("disk-used-percent");
         diskUsedPercent.innerHTML = `${disk.usedPercent} <span style="font-size: 24px">%</span>`;
 
+        displayProcesses(processes);
+      });
+
+      function displayProcesses(processes) {
         const processList = document.getElementById("process-list");
         processList.innerHTML = "";
         processes.forEach((process) => {
           const li = document.createElement("li");
           li.classList.add("process-item");
-          li.textContent = `${process.name} (PID: ${process.pid}, CPU: ${process.cpuPercent.toFixed(2)}%, Memory: ${process.memoryUsage.bytes} bytes /${process.memoryUsage.KiB} KiB/ ${process.memoryUsage.MiB} MiB/ ${process.memoryUsage.GiB} GiB)`;
+
+          const memoryUsage = process.memoryUsage[unit];
+          const memoryUnit = unit;
+
+          const div = document.createElement("div");
+          div.classList.add("process");
+          div.innerHTML = `
+        <div>pid: ${process.pid} ${process.name}</div>
+        <div>
+          CPU: ${process.cpuPercent}%, Memory: ${memoryUsage} ${memoryUnit}
+        </div>
+      `;
+
+          li.appendChild(div);
           processList.appendChild(li);
         });
-      });
+      }
 
       eventSource.onerror = (error) => {
         console.error("SSE ERROR: ", error);
