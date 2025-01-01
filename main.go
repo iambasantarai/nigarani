@@ -15,10 +15,10 @@ import (
 )
 
 type StorageInfo struct {
-	Bytes uint64 `json:"bytes"`
-	KiB   uint64 `json:"KiB"`
-	MiB   uint64 `json:"MiB"`
-	GiB   uint64 `json:"GiB"`
+	Bytes uint64  `json:"bytes"`
+	KiB   float64 `json:"KiB"`
+	MiB   float64 `json:"MiB"`
+	GiB   float64 `json:"GiB"`
 }
 
 type CPUInfo struct {
@@ -85,6 +85,12 @@ func calculateAverageUsagePercent(usagePercents []float64) float64 {
 	}
 
 	return roundToThreeDecimalPlaces(total / float64(len(usagePercents)))
+}
+
+func performConversion(dividend, divisor uint64) float64 {
+	result := float64(dividend) / float64(divisor)
+
+	return roundToThreeDecimalPlaces(result)
 }
 
 func sysInfoHandler(w http.ResponseWriter, r *http.Request) {
@@ -163,9 +169,9 @@ func sysInfoHandler(w http.ResponseWriter, r *http.Request) {
 					CPUPercent: roundToThreeDecimalPlaces(cpuPercent),
 					MemoryUsage: StorageInfo{
 						Bytes: memoryUsage.RSS,
-						KiB:   memoryUsage.RSS / KiBDivisor,
-						MiB:   memoryUsage.RSS / MiBDivisor,
-						GiB:   memoryUsage.RSS / GiBDivisor,
+						KiB:   performConversion(memoryUsage.RSS, KiBDivisor),
+						MiB:   performConversion(memoryUsage.RSS, MiBDivisor),
+						GiB:   performConversion(memoryUsage.RSS, GiBDivisor),
 					},
 				})
 			}
@@ -174,21 +180,21 @@ func sysInfoHandler(w http.ResponseWriter, r *http.Request) {
 				Memory: MemoryInfo{
 					Capacity: StorageInfo{
 						Bytes: memStat.Total,
-						KiB:   memStat.Total / KiBDivisor,
-						MiB:   memStat.Total / MiBDivisor,
-						GiB:   memStat.Total / GiBDivisor,
+						KiB:   performConversion(memStat.Total, KiBDivisor),
+						MiB:   performConversion(memStat.Total, MiBDivisor),
+						GiB:   performConversion(memStat.Total, GiBDivisor),
 					},
 					Usage: StorageInfo{
 						Bytes: memStat.Used,
-						KiB:   memStat.Used / KiBDivisor,
-						MiB:   memStat.Used / MiBDivisor,
-						GiB:   memStat.Used / GiBDivisor,
+						KiB:   performConversion(memStat.Used, KiBDivisor),
+						MiB:   performConversion(memStat.Used, MiBDivisor),
+						GiB:   performConversion(memStat.Used, GiBDivisor),
 					},
 					Availability: StorageInfo{
 						Bytes: memStat.Free,
-						KiB:   memStat.Free / KiBDivisor,
-						MiB:   memStat.Free / MiBDivisor,
-						GiB:   memStat.Free / GiBDivisor,
+						KiB:   performConversion(memStat.Free, KiBDivisor),
+						MiB:   performConversion(memStat.Free, MiBDivisor),
+						GiB:   performConversion(memStat.Free, GiBDivisor),
 					},
 					UsedPercent: roundToThreeDecimalPlaces(memStat.UsedPercent),
 				},
@@ -200,21 +206,21 @@ func sysInfoHandler(w http.ResponseWriter, r *http.Request) {
 				Disk: DiskInfo{
 					Capacity: StorageInfo{
 						Bytes: diskStat.Total,
-						KiB:   diskStat.Total / KiBDivisor,
-						MiB:   diskStat.Total / MiBDivisor,
-						GiB:   diskStat.Total / GiBDivisor,
+						KiB:   performConversion(diskStat.Total, KiBDivisor),
+						MiB:   performConversion(diskStat.Total, MiBDivisor),
+						GiB:   performConversion(diskStat.Total, GiBDivisor),
 					},
 					Usage: StorageInfo{
 						Bytes: diskStat.Used,
-						KiB:   diskStat.Used / KiBDivisor,
-						MiB:   diskStat.Used / MiBDivisor,
-						GiB:   diskStat.Used / GiBDivisor,
+						KiB:   performConversion(diskStat.Used, KiBDivisor),
+						MiB:   performConversion(diskStat.Used, MiBDivisor),
+						GiB:   performConversion(diskStat.Used, GiBDivisor),
 					},
 					Availability: StorageInfo{
 						Bytes: diskStat.Free,
-						KiB:   diskStat.Free / KiBDivisor,
-						MiB:   diskStat.Free / MiBDivisor,
-						GiB:   diskStat.Free / GiBDivisor,
+						KiB:   performConversion(diskStat.Free, KiBDivisor),
+						MiB:   performConversion(diskStat.Free, MiBDivisor),
+						GiB:   performConversion(diskStat.Free, GiBDivisor),
 					},
 					UsedPercent: roundToThreeDecimalPlaces(diskStat.UsedPercent),
 				},
