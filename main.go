@@ -71,7 +71,7 @@ func sysInfoHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Cache-Control", "no-cache")
 	w.Header().Set("Connection", "keep-alive")
 
-	tickerT := time.NewTicker(time.Second)
+	tickerT := time.NewTicker(time.Second * 3)
 	defer tickerT.Stop()
 
 	clientDisconnected := r.Context().Done()
