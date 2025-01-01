@@ -59,7 +59,7 @@
         <div class="processes">
           <div class="process-header">
             <h2>Processes</h2>
-            <div id="unit-filter">
+            <div id="unit-filter" class="hide">
               Filter
               <button class="filter-button active" data-unit="bytes">Bytes</button>
               <button class="filter-button" data-unit="KiB">KiB</button>
@@ -89,17 +89,16 @@
 
           const selectedTab = tab.dataset.tab;
           if (selectedTab === "cpu" || selectedTab === "memory") {
-            if (selectedTab === "cpu") {
-              document.getElementById("unit-filter").classList.add("hide");
+            if (selectedTab === "memory") {
+                document.getElementById("unit-filter").classList.remove("hide");
             } else {
-              document.getElementById("unit-filter").classList.remove("hide");
+                document.getElementById("unit-filter").classList.add("hide");
             }
 
             document.querySelector(".processes").classList.remove("hide");
 
             displayProcesses(processes, selectedTab);
           } else {
-            document.getElementById("process-list").innerHTML = "";
             document.querySelector(".processes").classList.add("hide");
           }
         });

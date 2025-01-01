@@ -32,7 +32,7 @@
 }
 
 ::-webkit-scrollbar-thumb {
-  background: var(--crust);
+  background: var(--surface2);
   border-radius: 9999px;
 }
 
@@ -165,7 +165,6 @@ html {
 }
 
 .process-list {
-  padding-top: 16px;
   max-height: 522px;
   overflow-y: scroll;
 }
@@ -176,15 +175,7 @@ html {
   padding: 12px 16px;
   border: 1px solid var(--surface1);
   list-style: none;
-}
-
-.process-item:last-child {
-  border-bottom: none;
-}
-
-.process-item {
-  padding: 10px;
-  margin: 5px 0;
+  margin: 4px 8px 0 0;
   background-color: var(--base);
   border: 1px solid var(--surface1);
   border-radius: 8px;
