@@ -12,7 +12,7 @@
 }
 
 ::-webkit-scrollbar-track {
-  background: #f8fafc;
+  background: #eef;
   border-radius: 9999px;
 }
 
@@ -114,6 +114,12 @@
   margin-top: 20px;
 }
 
+.process-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 15px;
+}
+
 .process-list {
   padding: 16px;
   max-height: 448px;
@@ -130,4 +136,43 @@
 
 .process-item:last-child {
   border-bottom: none;
+}
+
+.process-item {
+  padding: 10px;
+  margin: 5px 0;
+  background-color: #f9f9f9;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+}
+
+.process {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 14px;
+}
+
+.process-info {
+  display: flex;
+}
+
+.process-pid {
+  color: #333;
+  font-weight: bold;
+}
+
+.process-name {
+  margin-left: 16px;
+  font-weight: normal;
+}
+
+.process-usage {
+  color: #444;
+  font-weight: normal;
+}
+
+.process-item:hover {
+  background-color: #eef;
+  border-color: #bbc;
 }

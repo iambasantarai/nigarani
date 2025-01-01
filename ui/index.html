@@ -78,16 +78,21 @@
           document
             .querySelectorAll(".tab")
             .forEach((t) => t.classList.remove("active"));
-
           document
             .querySelectorAll(".tab-content")
             .forEach((c) => c.classList.remove("active"));
 
           tab.classList.add("active");
-
           document
             .getElementById(`${tab.dataset.tab}-content`)
             .classList.add("active");
+
+          const selectedTab = tab.dataset.tab;
+          if (selectedTab === "cpu" || selectedTab === "memory") {
+            displayProcesses(processes, selectedTab);
+          } else {
+            document.getElementById("process-list").innerHTML = "";
+          }
         });
       });
 
@@ -95,12 +100,15 @@
       document.querySelectorAll(".filter-button").forEach((button) => {
         button.addEventListener("click", function () {
           unit = this.dataset.unit;
-          displayProcesses(processes);
+
+          const activeTab = document.querySelector(".tab.active").dataset.tab;
+          if (activeTab === "memory") {
+            displayProcesses(processes, "memory");
+          }
         });
       });
 
       let processes = [];
-
       const eventSource = new EventSource("http://localhost:6969/sys-info");
 
       eventSource.addEventListener("sysInfo", (event) => {
@@ -116,7 +124,6 @@
         cpuUsedPercent.innerHTML = `${cpu.usedPercent} <span style="font-size: 24px">%</span>`;
 
         const cpuCoreUsages = document.getElementById("cpu-core-usages");
-
         cpuCoreUsages.innerHTML = "";
         cpu.cores.forEach((usage, index) => {
           const listItem = document.createElement("li");
@@ -137,12 +144,16 @@
         const diskUsedPercent = document.getElementById("disk-used-percent");
         diskUsedPercent.innerHTML = `${disk.usedPercent} <span style="font-size: 24px">%</span>`;
 
-        displayProcesses(processes);
+        const activeTab = document.querySelector(".tab.active").dataset.tab;
+        if (activeTab === "cpu" || activeTab === "memory") {
+          displayProcesses(processes, activeTab);
+        }
       });
 
-      function displayProcesses(processes) {
+      function displayProcesses(processes, selectedTab) {
         const processList = document.getElementById("process-list");
         processList.innerHTML = "";
+
         processes.forEach((process) => {
           const li = document.createElement("li");
           li.classList.add("process-item");
@@ -150,14 +161,20 @@
           const memoryUsage = process.memoryUsage[unit];
           const memoryUnit = unit;
 
+          const usageInfo =
+            selectedTab === "cpu"
+              ? `CPU: ${process.cpuPercent}%`
+              : `Memory: ${memoryUsage} ${memoryUnit}`;
+
           const div = document.createElement("div");
           div.classList.add("process");
           div.innerHTML = `
-        <div>pid: ${process.pid} ${process.name}</div>
-        <div>
-          CPU: ${process.cpuPercent}%, Memory: ${memoryUsage} ${memoryUnit}
-        </div>
-      `;
+              <div class="process-info">
+                  <div class="process-pid">PID: ${process.pid}</div>
+                  <div class="process-name">${process.name}</div>
+              </div>
+              <div class="process-usage">${usageInfo}</div>
+              `;
 
           li.appendChild(div);
           processList.appendChild(li);
