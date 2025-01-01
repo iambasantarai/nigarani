@@ -125,6 +125,7 @@ html {
   border: 1px solid var(--surface1);
   border-radius: 0.75rem;
   display: flex;
+  flex-wrap: wrap;
   justify-content: space-between;
 }
 
@@ -165,7 +166,7 @@ html {
 }
 
 .process-list {
-  max-height: 522px;
+  max-height: 544px;
   overflow-y: scroll;
 }
 
@@ -183,6 +184,7 @@ html {
 }
 
 .process {
+  width: 100%;
   font-size: 14px;
   display: flex;
   justify-content: space-between;
@@ -195,13 +197,13 @@ html {
 
 .process-pid {
   color: var(--subtext1);
-  font-weight: bold;
+  font-weight: 600;
 }
 
 .process-name {
   color: var(--text);
   margin-left: 8px;
-  font-weight: normal;
+  font-weight: 600;
 }
 
 .process-usage {

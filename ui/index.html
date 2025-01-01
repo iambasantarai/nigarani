@@ -60,7 +60,7 @@
           <div class="process-header">
             <h2>Processes</h2>
             <div id="unit-filter" class="hide">
-              Filter
+              <strong>Filter:</strong>
               <button class="filter-button active" data-unit="bytes">Bytes</button>
               <button class="filter-button" data-unit="KiB">KiB</button>
               <button class="filter-button" data-unit="MiB">MiB</button>
@@ -176,8 +176,8 @@
 
           const usageInfo =
             selectedTab === "cpu"
-              ? `CPU: ${process.cpuPercent}%`
-              : `Memory: ${memoryUsage} ${memoryUnit}`;
+              ? `${process.cpuPercent}%`
+              : `${memoryUsage} ${memoryUnit}`;
 
           const div = document.createElement("div");
           div.classList.add("process");
