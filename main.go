@@ -174,7 +174,7 @@ func sysInfoHandler(w http.ResponseWriter, r *http.Request) {
 				CPU: CPUInfo{
 					ModelName:   cpuStat[0].ModelName,
 					Cores:       formattedCoreUsagePercents,
-					UsedPercent: utils.CalculateAverageUsagePercent(formattedCoreUsagePercents),
+					UsedPercent: utils.CalculateAverage(formattedCoreUsagePercents),
 				},
 				Disk: DiskInfo{
 					Capacity: StorageInfo{

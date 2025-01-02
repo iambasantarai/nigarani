@@ -15,7 +15,7 @@ func RoundToThreeDecimalPlaces(value float64) float64 {
 	return roundedValue
 }
 
-func CalculateAverageUsagePercent(usagePercents []float64) float64 {
+func CalculateAverage(usagePercents []float64) float64 {
 	if len(usagePercents) == 0 {
 		return 0.0
 	}
