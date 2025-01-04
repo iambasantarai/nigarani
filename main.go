@@ -58,7 +58,7 @@ type SysInfo struct {
 
 func main() {
 	http.Handle("/", http.FileServer(http.Dir("./ui")))
-	http.HandleFunc("/sys-info", sysInfoHandler)
+	http.HandleFunc("/sys-info", handleSysInfo)
 
 	fmt.Printf("Application started.\nLink: http://localhost:%d\n", 6969)
 	if err := http.ListenAndServe(":6969", nil); err != nil {
@@ -66,7 +66,7 @@ func main() {
 	}
 }
 
-func sysInfoHandler(w http.ResponseWriter, r *http.Request) {
+func handleSysInfo(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/event-stream")
 	w.Header().Set("Cache-Control", "no-cache")
 	w.Header().Set("Connection", "keep-alive")
