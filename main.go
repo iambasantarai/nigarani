@@ -5,8 +5,10 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 	"time"
 
+	"github.com/joho/godotenv"
 	"github.com/shirou/gopsutil/cpu"
 	"github.com/shirou/gopsutil/disk"
 	"github.com/shirou/gopsutil/mem"
@@ -57,11 +59,20 @@ type SysInfo struct {
 }
 
 func main() {
+	if err := godotenv.Load(); err != nil {
+		log.Fatalf("ERROR: %s", err.Error())
+	}
+
+	portString := os.Getenv("PORT")
+	if portString == "" {
+		log.Fatal("Value for PORT key not found in .env file.")
+	}
+
 	http.Handle("/", http.FileServer(http.Dir("./ui")))
 	http.HandleFunc("/sys-info", handleSysInfo)
 
-	fmt.Printf("Application started.\nLink: http://localhost:%d\n", 6969)
-	if err := http.ListenAndServe(":6969", nil); err != nil {
+	fmt.Printf("Application started.\nLink: http://localhost:%s\n", portString)
+	if err := http.ListenAndServe(":"+portString, nil); err != nil {
 		log.Fatalf("ERROR: %s", err.Error())
 	}
 }
